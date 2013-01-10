@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[허니몬(Honeymon)의 gitblog]]></title>
-  <link href="http://ihoneymon.github.com/atom.xml" rel="self"/>
+  <title><![CDATA[Category: etc | 허니몬(Honeymon)의 gitblog]]></title>
+  <link href="http://ihoneymon.github.com/blog/categories/etc/atom.xml" rel="self"/>
   <link href="http://ihoneymon.github.com/"/>
   <updated>2013-01-11T01:02:29+09:00</updated>
   <id>http://ihoneymon.github.com/</id>
