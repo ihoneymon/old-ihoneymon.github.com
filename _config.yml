@@ -3,9 +3,9 @@
 # ----------------------- #
 
 url: http://ihoneymon.github.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+title: 허니몬(Honeymon)의 gitblog
+subtitle: 허니몬의 개발관련 기록들
+author: honeymon
 simple_search: http://google.com/search
 description:
 
@@ -19,7 +19,7 @@ date_format: "ordinal"
 subscribe_rss: /atom.xml
 subscribe_email:
 # RSS feeds can list your email address if you like
-email:
+email: ihoneymon@gmail.com
 
 # ----------------------- #
 #    Jekyll & Plugins     #
@@ -58,13 +58,13 @@ default_asides: [asides/recent_posts.html, asides/github.html, asides/twitter.ht
 # ----------------------- #
 
 # Github repositories
-github_user:
+github_user: ihoneymon
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
+twitter_user: ihoneymon
 twitter_tweet_count: 4
 twitter_show_replies: false
 twitter_follow_button: true
