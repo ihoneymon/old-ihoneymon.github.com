@@ -2,7 +2,7 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://ihoneymon.github.com
+url: http://gitblog.ihoney.pe.kr
 title: 허니몬(Honeymon)의 gitblog
 subtitle: 허니몬의 개발관련 기록들
 author: honeymon
@@ -64,7 +64,7 @@ github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user: ihoneymon
+twitter_user: @ihoneymon
 twitter_tweet_count: 4
 twitter_show_replies: false
 twitter_follow_button: true
@@ -77,7 +77,7 @@ google_plus_one_size: medium
 
 # Google Plus Profile
 # Hidden: No visible button, just add author information to search results
-googleplus_user:
+googleplus_user: ihoneymon
 googleplus_hidden: false
 
 # Pinboard
@@ -96,4 +96,4 @@ disqus_show_comment_count: false
 google_analytics_tracking_id:
 
 # Facebook Like
-facebook_like: false
+facebook_like: true
