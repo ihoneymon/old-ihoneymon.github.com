@@ -5,8 +5,6 @@ date: 2013-01-11 00:54
 comments: true
 categories: etc 
 ---
-Github에 블로그 개설하기(http://ihoneymon.github.com)
-==============
 
 ### 사전준비
 * git 설치
@@ -51,3 +49,4 @@ Github에 블로그 개설하기(http://ihoneymon.github.com)
 	다음단계로 의존성 있는 라이브러리 설치
 	
 * Deploying(배포)
+	
