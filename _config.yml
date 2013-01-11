@@ -66,18 +66,18 @@ github_skip_forks: true
 # Twitter
 twitter_user: ihoneymon
 twitter_tweet_count: 4
-twitter_show_replies: false
+twitter_show_replies: true
 twitter_follow_button: true
 twitter_show_follower_count: false
 twitter_tweet_button: true
 
 # Google +1
-google_plus_one: false
+google_plus_one: true
 google_plus_one_size: medium
 
 # Google Plus Profile
 # Hidden: No visible button, just add author information to search results
-googleplus_user: ihoneymon
+googleplus_user: 107171292302248842304
 googleplus_hidden: false
 
 # Pinboard
