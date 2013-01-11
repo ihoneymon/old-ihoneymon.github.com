@@ -4,7 +4,7 @@
   <title><![CDATA[Category: spring framework | 허니몬(Honeymon)의 gitblog]]></title>
   <link href="http://gitblog.ihoney.pe.kr/blog/categories/spring-framework/atom.xml" rel="self"/>
   <link href="http://gitblog.ihoney.pe.kr/"/>
-  <updated>2013-01-11T16:43:14+09:00</updated>
+  <updated>2013-01-11T16:49:12+09:00</updated>
   <id>http://gitblog.ihoney.pe.kr/</id>
   <author>
     <name><![CDATA[honeymon]]></name>
@@ -15,12 +15,10 @@
   
   <entry>
     <title type="html"><![CDATA[<번역시도>Spring 3.1 MVC example]]></title>
-    <link href="http://gitblog.ihoney.pe.kr/blog/2013/01/11/%3Cbeonyeogsido%3Espring-3-dot-1-mvc-example/"/>
+    <link href="http://gitblog.ihoney.pe.kr/blog/2013/01/11/spring-3-dot-1-mvc-example/"/>
     <updated>2013-01-11T16:39:00+09:00</updated>
-    <id>http://gitblog.ihoney.pe.kr/blog/2013/01/11/<beonyeogsido>spring-3-dot-1-mvc-example</id>
-    <content type="html"><![CDATA[<h1>&lt;번역시도> Spring 3.1 MVC Example</h1>
-
-<ul>
+    <id>http://gitblog.ihoney.pe.kr/blog/2013/01/11/spring-3-dot-1-mvc-example</id>
+    <content type="html"><![CDATA[<ul>
 <li>관련 페이지 : <a href="http://sleeplessinslc.blogspot.kr/2012/01/spring-31-mvc-example.html">Spring 3.1 MVC Example</a></li>
 </ul>
 
@@ -60,7 +58,7 @@
 
 <h3>데이터 접근 계층의 Java Config 모듈은 다음과 같다.</h3>
 
-<p>```java
+<p>``` java
 @Configuration
 @EnableTransactionManagement
 public class DefaultDaoConfig implements DaoConfig, TransactionManagementConfigurer {</p>
@@ -100,7 +98,7 @@ public class DefaultDaoConfig implements DaoConfig, TransactionManagementConfigu
 <p>앞에서 나온 <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/transaction/annotation/EnableTransactionManagement.html">@EnableTransactionManagement</a> 애노테이션의 이득은 @Transactional 가 달린 서비스들에 대해서 스프링의 애노테이션 기반 트랜잭션 관리 기능들을 사용할 수 있다는 것이다. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/">@Transactional</a> 애노테이션은 스프링 컨테이너에서 메소드를 위한 트랜잭션이 제공된다는 것을 알려준다. 서비스 클래스에 선언된 @Transaction도 유사하다. 또한 노트에 있는 FlightDao와 TicketDao 빈즈는 <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">@Autowired</a> 애노테이션을 사용하지 않고  생성자를 통해 명시적으로explicitly 정의되어 있다. @Autowired는 스프링 프레임워크에 의해 인자가 없는(no-args) 생성자를 가진 DAO들에 사용할 수 있다(@Autowired는 단 하나의 생성자에만 사용할 수 있다는 제한이 있다. 여러 개의 생성자에 @Autowired가 붙으면 어느 생성자를 이용해서 DI해야 할지 스프링이 알 수 없기 때이다).
 --@Autowired는 XML의 타입에 의한 자동와이어링 방식을 생성자 필드, 수정자 메소드, 일반 메소드의 네 가지로 확장한 것이다.  필드나 프로퍼티 타입을 이용해 후보 빈을 찾는다. @Resource는 이름으로 후보 빈을 찾는가?</p>
 
-<p>```java
+<p>``` java
 @Transactional(readOnly = true)
 public class ReservationServiceImpl implements ReservationService {
   private final FlightDao flightDao;
@@ -120,7 +118,7 @@ public class ReservationServiceImpl implements ReservationService {
 ```</p>
 
 <p>서비스 계층은 애플리케이션 서비스들에 정의된 설정Config에 대응하게 된다.
-```[java]
+``` java
 @Configuration
 public class DefaultServiceConfig implements ServiceConfig {
   @Autowired
@@ -141,7 +139,7 @@ public class DefaultServiceConfig implements ServiceConfig {
 
 <p>강한 의문이 드는 것이 하나있다. 리플렉션하지 않고 명확하게 테스트 목적에 맞는 가짜 DaoConfig를 auto-wired 하여 내놓을 수 있을까? 생각해보자, 스프링의 컨테이너가 no-arg 생성자를 기대하는 것처럼, Config들은 초기화시 생성자를 이용할 없다. 한가지 방법이 있다면 Config를 위해서 setter를 정의하듯 mock에도 같은 것을 적용할 수 있다. 다음에 구현된 ControllerConfig 처럼 말이다(읽고보니, 앞서 나온 @Autowired를 생성자가 없는 경우에는 setter에 정의를 해서 사용할 수 있다는 것 같은데... )</p>
 
-<p>```[java]
+<p>``` java
 @Configuration
 public class ControllerConfig {
   private ServiceConfig serviceConfig;</p>
@@ -167,7 +165,7 @@ public class ControllerConfig {
 
 <p>FlightContoller는 다음과 같다.</p>
 
-<p>```[java][FlightContoller]
+<p>``` java FlightContoller
 @Controller
 public class FlightsController {
   private final AirlineService airlineService;
@@ -214,7 +212,7 @@ return mav;
 
 <p>이 모든 계층의 설정들은 WebConfig에서 함께 묶을 수도 있고, Spring MVC Servlet 설정시 요구하는 다른 컴포넌트들을 별도로 정의할 수도 있다. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/context/annotation/Import.html">@Import</a> 애노테이션은 스프링 컨테이너에게 Config에 포함되어 필요한 Config들을 표시한다. 혹은 web.xml에서 Servlcet 정의부분에서 같은 방법으로 표시할 수 있다.</p>
 
-<p>```[java][]
+<p>``` java WebConfig
 @EnableWebMvc
 @Configuration
 @Import({ ControllerConfig.class, DefaultServiceConfig.class, DefaultDaoConfig.class })
@@ -248,7 +246,7 @@ public class WebConfig extends WebMvcConfigurerAdapter
 
 <p><a href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a>은 자바 플랫폼 검증에 대한 표준을 제공한다. 검증을 원할 때 사용하면 된다. API의 애노테이션은 검증을 강제하는 것을 명시하고 런타임시에도 같다. 하이버네이트Hibernate를 사용한 이 예제에서 추가된 Hibernate-Validator는 API를 구현한 것이며 이것은 자연스러운 선택이다. 이 예제에 있는 Reservation 클래스는 JSR 애노테이션에서 제공하는 실행시 검증 및 메시지를 제공한다. 원한다면, 메시지는 리소스 번들에서 구성할 수 있다.</p>
 
-<p>```[java]
+<p>``` java Reservation
 public class Reservation {
   @XmlElement
   @NotBlank(message = "must not be blank")
@@ -266,7 +264,7 @@ public class Reservation {
 ```</p>
 
 <p>웹 배포 설명(The web deployment descriptor)은 애플리케이션에 집중되어 있으며, <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">DispatchServlet</a>는 WebConfig의 위치 및 Context class에서 사용한다는 것을 정의하고 있다. 앞서 언급했듯이, WebConfig에서 임포트import했던 Config들을 web.xml 안에 Config는 콤마(,)로 구분된 목록으로 제공할 수 있다.
-```[xml][web.xml]
+``` xml web.xml
 <web-app></p>
 
 <pre><code>    &lt;servlet&gt;
@@ -296,7 +294,7 @@ public class Reservation {
 
 <p>단위 테스트 계층은 <a href="http://static.springsource.org/spring/docs/current/spring-framework-reference/html/testing.html">Spring Testing Framework</a>를 통해 쉬워진다. 예를 들어 서비스 계층을 테스트 할 때, 데이터베이스에 대한 연계가 필요 없으며 양방향에 대한 반응을 모조할 수 있다. 이런 이유로, DAO config 객체들은 보다시피 모조체를 제공한다.</p>
 
-<p>```[java][MockDaoConig]
+<p>``` java MockDaoConig
 @Configuration
 @EnableTransactionManagement
 public class MockDaoConfig implements DaoConfig {</p>
@@ -345,7 +343,7 @@ AirportService a2 = new AirportServiceImpl(airportDaoMock);
 
 <p>이 예제의 목표중 하나는 웹 애플리케이션이 서비스로서도 좋다는 것을 설명하는 것이다. 컨트롤러를 따르면서 웹 애플리케이션을 대표함과 서비스 사용자a service consumer임을 알 수 있다.</p>
 
-<p>```[java][ReservationsController]
+<p>``` java ReservationsController
 @Controller
 public class ReservationsController {
   private final AirlineService airlineService;
@@ -381,7 +379,7 @@ public class ReservationsController {
 
 <p>앞서 본 컨트롤러에서, getReservationHtml() 메소드는 getReservations() 에서 반환하는 XML 혹은 JSON 으로 구성된 예약정보를 HTML으로 구성하여 반환한다. 반환체의 유형은 서비스에서 제공하는 Accept header에 의존한다. @ResponseBody 애노테이션은 결과로 반환되는 객체가 즉각적으로 view를 대상으로 하지 않는다는 것을 의미한다(@ResponseBody에서 produces로 정의한 형태로 변환되어 반한된다는 것을 뜻한달까?). 예를 들면, XML을 마샬링 언마샬링하기 위해 <a href="http://static.springsource.org/spring-ws/site/reference/html/oxm.html">Spring OXM</a>을 사용했다(via JAXB). <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">RestTemplate</a>를 이용한 컨트롤러의 통합테스트는 다음과 같다.</p>
 
-<p>```[java][WebServiceIntegrationTest]
+<p>``` java WebServiceIntegrationTest
 public class WebServiceIntegrationTest {
   private RestTemplate template;
   private static final String BASE_URL = "http://localhost:9091";</p>

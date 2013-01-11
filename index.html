@@ -9,9 +9,7 @@
   <meta name="author" content="honeymon">
 
   
-  <meta name="description" content="사전준비 git 설치
-rbenv 혹은 RVM을 이용해서 ruby 1.9.3 설치 하기
-github에 username.github.com 으로 repository를 생성한다. ex) ihoneymon.github.com 참고사이트 Octopress http:// &hellip;">
+  <meta name="description" content="관련 페이지 : Spring 3.1 MVC Example Spring JavaConfig 은 순수자바(pure-java)를 이용한 스프링 컨테이너 설정을 의미한다. 다시 말해서, 가급적으로 XML을 사용하지 않는다. 이전에 XML에서 표현했던 방식을 자바 5 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +72,700 @@ github에 username.github.com 으로 repository를 생성한다. ex) ihoneymon.g
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/2013/01/11/spring-3-dot-1-mvc-example/"><번역시도>Spring 3.1 MVC Example</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-11T16:39:00+09:00" pubdate data-updated="true">Jan 11<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul>
+<li>관련 페이지 : <a href="http://sleeplessinslc.blogspot.kr/2012/01/spring-31-mvc-example.html">Spring 3.1 MVC Example</a></li>
+</ul>
+
+
+<p><a href="http://static.springsource.org/spring/docs/3.1.x/spring-framework-reference/html/beans.html#beans-java">Spring JavaConfig</a> 은 순수자바(pure-java)를 이용한 스프링 컨테이너 설정을 의미한다. 다시 말해서, 가급적으로 XML을 사용하지 않는다. 이전에 XML에서 표현했던 방식을 자바 5 이상에서 제네릭Generic과 애노테이션Annotation에 의존하여 구현한다.</p>
+
+<h3>JavaConfig의 이로움들</h3>
+
+<ol>
+<li>주입Injection, 상속, 다형성 등의 기능을 수행한다.</li>
+<li>빈들beans에 대한 생성과 초기화에 대한 모든 권한을 가진다.</li>
+<li>IDE와 같은 툴의 도움 없이도 리팩토링을 손쉽게할 수 있다.</li>
+<li>컨테이너container 초기화를 위해 많은 비용이 드는 클래스패스Classpath 스캐닝Scanning을 감소시킬 수 있는 능력</li>
+<li>필요에 따라 XML 혹은 프로퍼티property 등의 연결을 지원한다.</li>
+</ol>
+
+
+<p>이 블로그에 있는 대부분의 동작하는 예제와 코드들은 다운로드와 실행이 가능하다. 아래의 코드는 Spring MVC에 익숙한 사람이 본다는 가정을 하고 기본적인 것들은 살펴보지 않겠습니다. 이 블로그에 있는 예제들은 다음과 같은 목적으로 작성되었습니다.</p>
+
+<h3>예제의 작성목적</h3>
+
+<ol>
+<li>스프링 XML을 사용하지 않고 Spring JavaConfig를 통해 다른 층을 연결할 수 있음을 설명한다.</li>
+<li>트랜잭션 관리를 설명한다.</li>
+<li><a href="http://beanvalidation.org/1.0/spec/">JSR-303</a>을 이용한 빈에 대한 검증Bean validation을 설명한다.</li>
+<li>애플리케이션에 의한 RESTful Web Service 와 같은 REST 기능feature를 설명한다.</li>
+<li>웹서비스의 통합테스트integration-test에 RestTemplate로 사용됨을 설명한다.</li>
+</ol>
+
+
+<p>간단히 말하면, 정말 긴 포스트라는&#8230; ;-)</p>
+
+<p>이 블로그에서 참조하는 앱은 검색 및 발권이 가능한 비행 예약 시스템이다. 웹 애플리케이션은 웹, 서비스와 데이터 접근의 3계층으로 구분되어 있다. 각 계층은 최고 레벨 설정 혹은 WebConfig에서 시작된 계층적인 설정을 따르는 자바 설정Java Configuration을 가진다.
+<img src="http://1.bp.blogspot.com/-J8d58r3EfW8/Twe--sFJtiI/AAAAAAAABBA/nV8AxpWN3QU/s640/dependencies.png" alt="shown below with the WebConfig" /></p>
+
+<p>유닛 테스트를 용이하게 할 수 있도록, 설정 클래스(the Config classes)들은 인터페이스/구현체interface/imple로 분리했다.</p>
+
+<h3>데이터 접근 계층의 Java Config 모듈은 다음과 같다.</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="nd">@EnableTransactionManagement</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultDaoConfig</span> <span class="kd">implements</span> <span class="n">DaoConfig</span><span class="o">,</span> <span class="n">TransactionManagementConfigurer</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Dao Initialization</span>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">FlightDao</span> <span class="nf">getFlightDao</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>     <span class="k">return</span> <span class="k">new</span> <span class="nf">FlightDaoImpl</span><span class="o">(</span><span class="n">getSessionFactory</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>   <span class="o">...</span><span class="na">other</span> <span class="n">DAOs</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Session Factory configuration for Hibernate</span>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">SessionFactory</span> <span class="nf">getSessionFactory</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">AnnotationConfiguration</span><span class="o">().</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="n">Ticket</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="n">Flight</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="n">Airport</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'>      <span class="o">.</span><span class="na">configure</span><span class="o">().</span><span class="na">buildSessionFactory</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Transaction manager being used</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">PlatformTransactionManager</span> <span class="nf">annotationDrivenTransactionManager</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">HibernateTransactionManager</span><span class="o">(</span><span class="n">getSessionFactory</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>앞에서 나온 <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/transaction/annotation/EnableTransactionManagement.html">@EnableTransactionManagement</a> 애노테이션의 이득은 @Transactional 가 달린 서비스들에 대해서 스프링의 애노테이션 기반 트랜잭션 관리 기능들을 사용할 수 있다는 것이다. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/">@Transactional</a> 애노테이션은 스프링 컨테이너에서 메소드를 위한 트랜잭션이 제공된다는 것을 알려준다. 서비스 클래스에 선언된 @Transaction도 유사하다. 또한 노트에 있는 FlightDao와 TicketDao 빈즈는 <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">@Autowired</a> 애노테이션을 사용하지 않고  생성자를 통해 명시적으로explicitly 정의되어 있다. @Autowired는 스프링 프레임워크에 의해 인자가 없는(no-args) 생성자를 가진 DAO들에 사용할 수 있다(@Autowired는 단 하나의 생성자에만 사용할 수 있다는 제한이 있다. 여러 개의 생성자에 @Autowired가 붙으면 어느 생성자를 이용해서 DI해야 할지 스프링이 알 수 없기 때이다).
+&#8211;@Autowired는 XML의 타입에 의한 자동와이어링 방식을 생성자 필드, 수정자 메소드, 일반 메소드의 네 가지로 확장한 것이다.  필드나 프로퍼티 타입을 이용해 후보 빈을 찾는다. @Resource는 이름으로 후보 빈을 찾는가?</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Transactional</span><span class="o">(</span><span class="n">readOnly</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReservationServiceImpl</span> <span class="kd">implements</span> <span class="n">ReservationService</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">FlightDao</span> <span class="n">flightDao</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">TicketDao</span> <span class="n">ticketDao</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">ReservationServiceImpl</span><span class="o">(</span><span class="n">FlightDao</span> <span class="n">flightDao</span><span class="o">,</span> <span class="n">TicketDao</span> <span class="n">ticketDao</span><span class="o">)</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="nd">@Transactional</span><span class="o">(</span><span class="n">rollbackFor</span> <span class="o">=</span> <span class="o">{</span> <span class="n">NoSeatAvailableException</span><span class="o">.</span><span class="na">class</span> <span class="o">},</span> <span class="n">readOnly</span><span class="o">=</span><span class="kc">false</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Ticket</span> <span class="nf">bookFlight</span><span class="o">(</span><span class="n">Reservation</span> <span class="n">booking</span><span class="o">)</span> <span class="kd">throws</span>  <span class="n">NoSeatAvailableException</span> <span class="o">{</span>
+</span><span class='line'>   <span class="o">...</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Ticket</span><span class="o">&gt;</span> <span class="nf">getReservations</span><span class="o">()</span> <span class="o">{...}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>서비스 계층은 애플리케이션 서비스들에 정의된 설정Config에 대응하게 된다.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">DefaultServiceConfig</span> <span class="kd">implements</span> <span class="n">ServiceConfig</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">DaoConfig</span> <span class="n">daoConfig</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">AirlineService</span> <span class="nf">getAirlineService</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">AirlineServiceImpl</span><span class="o">(</span><span class="n">daoConfig</span><span class="o">.</span><span class="na">getFlightDao</span><span class="o">(),</span> <span class="n">daoConfig</span><span class="o">.</span><span class="na">getAirportDao</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">.........</span><span class="na">other</span> <span class="n">services</span> <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>강한 의문이 드는 것이 하나있다. 리플렉션하지 않고 명확하게 테스트 목적에 맞는 가짜 DaoConfig를 auto-wired 하여 내놓을 수 있을까? 생각해보자, 스프링의 컨테이너가 no-arg 생성자를 기대하는 것처럼, Config들은 초기화시 생성자를 이용할 없다. 한가지 방법이 있다면 Config를 위해서 setter를 정의하듯 mock에도 같은 것을 적용할 수 있다. 다음에 구현된 ControllerConfig 처럼 말이다(읽고보니, 앞서 나온 @Autowired를 생성자가 없는 경우에는 setter에 정의를 해서 사용할 수 있다는 것 같은데&#8230; )</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ControllerConfig</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">ServiceConfig</span> <span class="n">serviceConfig</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setServiceConfig</span><span class="o">(</span><span class="n">ServiceConfig</span> <span class="n">serviceConfig</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">this</span><span class="o">.</span><span class="na">serviceConfig</span> <span class="o">=</span> <span class="n">serviceConfig</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">FlightsController</span> <span class="nf">getFlightController</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="k">new</span> <span class="nf">FlightsController</span><span class="o">(</span><span class="n">serviceConfig</span><span class="o">.</span><span class="na">getAirlineService</span><span class="o">(),</span> <span class="n">serviceConfig</span><span class="o">.</span><span class="na">getAirportService</span><span class="o">());</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">...</span> <span class="n">other</span> <span class="n">controllers</span><span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>FlightContoller는 다음과 같다.</p>
+
+<figure class='code'><figcaption><span>FlightContoller</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Controller</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">FlightsController</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">AirlineService</span> <span class="n">airlineService</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">AirportService</span> <span class="n">airportService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">FlightsController</span><span class="o">(</span><span class="n">AirlineService</span> <span class="n">airlineService</span><span class="o">,</span> <span class="n">AirportService</span> <span class="n">airportService</span><span class="o">)</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Flight search page initialization</span>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/searchFlights.html&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">searchFlights</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">Airport</span><span class="o">&gt;</span> <span class="n">airports</span> <span class="o">=</span> <span class="n">airportService</span><span class="o">.</span><span class="na">getAirports</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">ModelAndView</span> <span class="n">mav</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModelAndView</span><span class="o">(</span><span class="s">&quot;searchFlights&quot;</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mav</span><span class="o">.</span><span class="na">addObject</span><span class="o">(</span><span class="s">&quot;airports&quot;</span><span class="o">,</span> <span class="n">airports</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">mav</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Searching for a flight. Note that the Critiera object is automatically bound with </span>
+</span><span class='line'>  <span class="c1">// the corresponding form post parameters</span>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/searchFlights.html&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">POST</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">searchFlights</span><span class="o">(</span><span class="n">FlightSearchCriteria</span> <span class="n">criteria</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">ModelAndView</span> <span class="n">mav</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ModelAndView</span><span class="o">(</span><span class="s">&quot;searchFlights&quot;</span><span class="o">);</span>
+</span><span class='line'>     <span class="o">....</span>
+</span><span class='line'>    <span class="n">FlightSearchResults</span> <span class="n">searchResult</span> <span class="o">=</span> <span class="n">airlineService</span><span class="o">.</span><span class="na">getFlights</span><span class="o">(</span><span class="n">criteria</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mav</span><span class="o">.</span><span class="na">addObject</span><span class="o">(</span><span class="s">&quot;flightSearchResult&quot;</span><span class="o">,</span> <span class="n">searchResult</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">mav</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>빈에 있는 @Controller 애노테이션은 스프링에 있는 MVC 유사체들과 같은 표시를 하며 request url과 web request 제공 등에 대한 동일한 매핑이 된다. 콘트롤러들에 대하여 보충설명을 하자면,
+1. 다른 특별한 기본 클래스에 대한 확장이 필요없다.
+2. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">@RequestMapping</a> 애노테이션은 HTTP method나 리소스 서비스에 정의된다. 예를 들면, &#8220;/searchFlight&#8221;에 대한 요청에서  GET과 POST 요청에 따라 다르게 반응하도록 되어 있는 것을 볼 수 있다.</p>
+
+<p>이 모든 계층의 설정들은 WebConfig에서 함께 묶을 수도 있고, Spring MVC Servlet 설정시 요구하는 다른 컴포넌트들을 별도로 정의할 수도 있다. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/org/springframework/context/annotation/Import.html">@Import</a> 애노테이션은 스프링 컨테이너에게 Config에 포함되어 필요한 Config들을 표시한다. 혹은 web.xml에서 Servlcet 정의부분에서 같은 방법으로 표시할 수 있다.</p>
+
+<figure class='code'><figcaption><span>WebConfig</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@EnableWebMvc</span>
+</span><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="nd">@Import</span><span class="o">({</span> <span class="n">ControllerConfig</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">DefaultServiceConfig</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">DefaultDaoConfig</span><span class="o">.</span><span class="na">class</span> <span class="o">})</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WebConfig</span> <span class="kd">extends</span> <span class="n">WebMvcConfigurerAdapter</span>
+</span><span class='line'><span class="c1">// Validator for JSR 303 used across the application</span>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Validator</span> <span class="nf">getValidator</span><span class="o">()</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c1">// View Resolver..JSP, Freemarker etc</span>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">ViewResolver</span> <span class="nf">getViewResolver</span><span class="o">()</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'> <span class="c1">// Mapping handler for OXM</span>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">RequestMappingHandlerAdapter</span> <span class="nf">getHandlerAdapter</span><span class="o">()</span> <span class="o">{..</span> <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'> <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">configureDefaultServletHandling</span><span class="o">(</span><span class="n">DefaultServletHandlerConfigurer</span> <span class="n">configurer</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">configurer</span><span class="o">.</span><span class="na">enable</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/">@EnableWebMvc</a> 애노테이션은 이것은 MVC 애플리케이션이라고 스프링에게 설명하는데 필요하다. <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/">WebMvcConfigurerAdapter</a> 확장하여 Spring Servlet의 변경에 대한 허용 경로 조정을 구현한다. 혹은 WebMvcConfigurationSupport를 바로 상속받거나 필요한 조작을 제공할 수도 있다.</p>
+
+<h3>Validation of Requests using JSR-303 Bean Validation API(JSR-303 API를 이용한 요청에 대한 검증)</h3>
+
+<p><a href="http://jcp.org/en/jsr/detail?id=303">JSR-303</a>은 자바 플랫폼 검증에 대한 표준을 제공한다. 검증을 원할 때 사용하면 된다. API의 애노테이션은 검증을 강제하는 것을 명시하고 런타임시에도 같다. 하이버네이트Hibernate를 사용한 이 예제에서 추가된 Hibernate-Validator는 API를 구현한 것이며 이것은 자연스러운 선택이다. 이 예제에 있는 Reservation 클래스는 JSR 애노테이션에서 제공하는 실행시 검증 및 메시지를 제공한다. 원한다면, 메시지는 리소스 번들에서 구성할 수 있다.</p>
+
+<figure class='code'><figcaption><span>Reservation</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Reservation</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nd">@XmlElement</span>
+</span><span class='line'>  <span class="nd">@NotBlank</span><span class="o">(</span><span class="n">message</span> <span class="o">=</span> <span class="s">&quot;must not be blank&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">reservationName</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Min</span><span class="o">(</span><span class="mi">1</span><span class="o">)</span>
+</span><span class='line'>  <span class="nd">@XmlElement</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kt">int</span> <span class="n">quantity</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@XmlElement</span>
+</span><span class='line'>  <span class="nd">@NotNull</span><span class="o">(</span><span class="n">message</span> <span class="o">=</span> <span class="s">&quot;Flight Id must be provided&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">Long</span> <span class="n">flightId</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">....</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>웹 배포 설명(The web deployment descriptor)은 애플리케이션에 집중되어 있으며, <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">DispatchServlet</a>는 WebConfig의 위치 및 Context class에서 사용한다는 것을 정의하고 있다. 앞서 언급했듯이, WebConfig에서 임포트import했던 Config들을 web.xml 안에 Config는 콤마(,)로 구분된 목록으로 제공할 수 있다.</p>
+
+<figure class='code'><figcaption><span>web.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;web-app&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;servlet&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;servlet-name&gt;</span>springExample<span class="nt">&lt;/servlet-name&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;servlet-class&gt;</span>org.springframework.web.servlet.DispatcherServlet
+</span><span class='line'>                <span class="nt">&lt;/servlet-class&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;init-param&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;param-name&gt;</span>contextClass<span class="nt">&lt;/param-name&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;param-value&gt;</span>org.springframework.web.context.support.AnnotationConfigWebApplicationContext
+</span><span class='line'>                        <span class="nt">&lt;/param-value&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/init-param&gt;</span>
+</span><span class='line'>                <span class="c">&lt;!-- Tell Spring where to find the Config Class</span>
+</span><span class='line'><span class="c">                     This is the hook in to the application. --&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;init-param&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;param-name&gt;</span>contextConfigLocation<span class="nt">&lt;/param-name&gt;</span>
+</span><span class='line'>                        <span class="nt">&lt;param-value&gt;</span>com.welflex.web.WebConfig<span class="nt">&lt;/param-value&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;/init-param&gt;</span>
+</span><span class='line'>                <span class="nt">&lt;load-on-startup&gt;</span>1<span class="nt">&lt;/load-on-startup&gt;</span>
+</span><span class='line'>        <span class="nt">&lt;/servlet&gt;</span>
+</span><span class='line'>        ....
+</span><span class='line'><span class="nt">&lt;/web-app&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>단위테스트Unit Testing</h3>
+
+<p>단위 테스트 계층은 <a href="http://static.springsource.org/spring/docs/current/spring-framework-reference/html/testing.html">Spring Testing Framework</a>를 통해 쉬워진다. 예를 들어 서비스 계층을 테스트 할 때, 데이터베이스에 대한 연계가 필요 없으며 양방향에 대한 반응을 모조할 수 있다. 이런 이유로, DAO config 객체들은 보다시피 모조체를 제공한다.</p>
+
+<figure class='code'><figcaption><span>MockDaoConig</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Configuration</span>
+</span><span class='line'><span class="nd">@EnableTransactionManagement</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MockDaoConfig</span> <span class="kd">implements</span> <span class="n">DaoConfig</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Bean</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">FlightDao</span> <span class="nf">getFlightDao</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Mockito</span><span class="o">.</span><span class="na">mock</span><span class="o">(</span><span class="n">FlightDao</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">..</span><span class="c1">// Other mocks</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@RunWith</span><span class="o">(</span><span class="n">SpringJUnit4ClassRunner</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'><span class="nd">@ContextConfiguration</span><span class="o">(</span><span class="n">classes</span> <span class="o">=</span> <span class="o">{</span><span class="n">MockDaoConfig</span><span class="o">.</span><span class="na">class</span><span class="o">,</span>
+</span><span class='line'>    <span class="n">DefaultServiceConfig</span><span class="o">.</span><span class="na">class</span> <span class="o">},</span> <span class="n">loader</span> <span class="o">=</span> <span class="n">AnnotationConfigContextLoader</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">AirportServiceTest</span> <span class="o">{</span>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">AirportDao</span> <span class="n">airportDaoMock</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Autowired</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">ApplicationContext</span> <span class="n">ctx</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">getAirportCode</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Obtain Airport service from the context</span>
+</span><span class='line'>    <span class="n">AirportService</span> <span class="n">a</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="na">getBean</span><span class="o">(</span><span class="n">AirportService</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Alternatively, instatiate an Airport Service by providing a mock</span>
+</span><span class='line'>    <span class="n">AirportService</span> <span class="n">a2</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AirportServiceImpl</span><span class="o">(</span><span class="n">airportDaoMock</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>테스트에 앞서, Config는 ServiceConfig의 구현체와 DaoConfig의 모조체를 구현하는데 사용된다. 이를 통해 모조 데이터 접근 계층을 이용하여 서비스 계층을 테스트할 수 있게 된다. 몇몇 사람들은 컨테이너에 의해 모든 의존성이 연계되어 제공되는 클래스를 선호하는 것에 비해, 필요로 하는 의존성을 명확하게 연계wiring에 시킨 각각의 클래스들을 격리시켜서 테스트하는 것을 선호한다. 테스트 유형에 대해서는 다른 블로그들에서 고론되지만 명확하게 어떤 유형이 적합하다고 결론짓기는 어렵다. 테스트를 위해서 모든 빈들의 모조품이 필요한 것은 아니고 필요하면 별도의 Config 객체를 선언할 수 있다. 서비스 계층에서 사용되는 데이터 접근 모조체처럼, 컨트롤러 계층은 테스트를 위해 서비스 계층 모조 객체들을 사용할 수 있다.</p>
+
+<h3>Spring MVC RESTful Services</h3>
+
+<p>이 예제의 목표중 하나는 웹 애플리케이션이 서비스로서도 좋다는 것을 설명하는 것이다. 컨트롤러를 따르면서 웹 애플리케이션을 대표함과 서비스 사용자a service consumer임을 알 수 있다.</p>
+
+<figure class='code'><figcaption><span>ReservationsController</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="nd">@Controller</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">ReservationsController</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">AirlineService</span> <span class="n">airlineService</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">final</span> <span class="n">ReservationService</span> <span class="n">reservationService</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">ReservationsController</span><span class="o">(</span><span class="n">ReservationService</span> <span class="n">reservationService</span><span class="o">,</span> <span class="n">AirlineService</span> <span class="n">airlineService</span><span class="o">)</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="s">&quot;/reservations.html&quot;</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">getReservationsHtml</span><span class="o">()</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/reservations/{reservationId}.html&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">)</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">ModelAndView</span> <span class="nf">getReservationHtml</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">Long</span> <span class="n">reservationId</span><span class="o">)</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Web Service Support to provide XML or JSON based of the Accept Header attribute</span>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/reservations&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="o">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_XML_VALUE</span> <span class="o">})</span>
+</span><span class='line'>  <span class="nd">@ResponseBody</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Reservations</span> <span class="nf">getReservations</span><span class="o">()</span> <span class="o">{...}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@RequestMapping</span><span class="o">(</span><span class="n">value</span> <span class="o">=</span> <span class="s">&quot;/reservations/{reservationId}&quot;</span><span class="o">,</span> <span class="n">method</span> <span class="o">=</span> <span class="n">RequestMethod</span><span class="o">.</span><span class="na">GET</span><span class="o">,</span> <span class="n">produces</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class='line'>      <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_JSON_VALUE</span><span class="o">,</span> <span class="n">MediaType</span><span class="o">.</span><span class="na">APPLICATION_XML_VALUE</span> <span class="o">})</span>
+</span><span class='line'>  <span class="nd">@ResponseBody</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">Ticket</span> <span class="nf">getReservation</span><span class="o">(</span><span class="nd">@PathVariable</span> <span class="n">Long</span> <span class="n">reservationId</span><span class="o">)</span> <span class="o">{...}</span>
+</span><span class='line'>  <span class="o">....</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>앞서 본 컨트롤러에서, getReservationHtml() 메소드는 getReservations() 에서 반환하는 XML 혹은 JSON 으로 구성된 예약정보를 HTML으로 구성하여 반환한다. 반환체의 유형은 서비스에서 제공하는 Accept header에 의존한다. @ResponseBody 애노테이션은 결과로 반환되는 객체가 즉각적으로 view를 대상으로 하지 않는다는 것을 의미한다(@ResponseBody에서 produces로 정의한 형태로 변환되어 반한된다는 것을 뜻한달까?). 예를 들면, XML을 마샬링 언마샬링하기 위해 <a href="http://static.springsource.org/spring-ws/site/reference/html/oxm.html">Spring OXM</a>을 사용했다(via JAXB). <a href="http://static.springsource.org/spring/docs/3.1.x/javadoc-api/index.html?index-filesindex-1.html">RestTemplate</a>를 이용한 컨트롤러의 통합테스트는 다음과 같다.</p>
+
+<figure class='code'><figcaption><span>WebServiceIntegrationTest</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">WebServiceIntegrationTest</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">RestTemplate</span> <span class="n">template</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">BASE_URL</span> <span class="o">=</span> <span class="s">&quot;http://localhost:9091&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Before</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setUp</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Create Rest Template with the different converters</span>
+</span><span class='line'>    <span class="n">template</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RestTemplate</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">List</span><span class="o">&lt;</span><span class="n">HttpMessageConverter</span><span class="o">&lt;?&gt;&gt;</span> <span class="n">converters</span> <span class="o">=</span> <span class="o">...;</span>
+</span><span class='line'>    <span class="n">template</span><span class="o">.</span><span class="na">setMessageConverters</span><span class="o">(</span><span class="n">converters</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">String</span> <span class="n">FLIGHT_NUMBER</span> <span class="o">=</span> <span class="s">&quot;LH 235&quot;</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Test</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">reservations</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="n">Flight</span> <span class="n">singleFlight</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="na">getForObject</span><span class="o">(</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s">&quot;/flights/&quot;</span> <span class="o">+</span> <span class="n">FLIGHT_NUMBER</span><span class="o">,</span>
+</span><span class='line'>      <span class="n">Flight</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">Reservation</span> <span class="n">res</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Reservation</span><span class="o">();</span>
+</span><span class='line'>    <span class="n">res</span><span class="o">.</span><span class="na">setFlightId</span><span class="o">(</span><span class="n">singleFlight</span><span class="o">.</span><span class="na">getId</span><span class="o">());</span>
+</span><span class='line'>    <span class="n">res</span><span class="o">.</span><span class="na">setQuantity</span><span class="o">(</span><span class="mi">10</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">res</span><span class="o">.</span><span class="na">setReservationName</span><span class="o">(</span><span class="s">&quot;Sanjay Acharya&quot;</span><span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="c1">// Post to create a ticket</span>
+</span><span class='line'>    <span class="n">Ticket</span> <span class="n">ticket</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="na">postForObject</span><span class="o">(</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s">&quot;/bookFlight&quot;</span><span class="o">,</span> <span class="n">res</span><span class="o">,</span> <span class="n">Ticket</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">ticket</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Ticket reserved:&quot;</span> <span class="o">+</span> <span class="n">ticket</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// All Reservations</span>
+</span><span class='line'>    <span class="n">Reservations</span> <span class="n">reservations</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="na">getForObject</span><span class="o">(</span><span class="n">BASE_URL</span>  <span class="o">+</span> <span class="s">&quot;/reservations&quot;</span><span class="o">,</span> <span class="n">Reservations</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+</span><span class='line'>    <span class="n">assertTrue</span><span class="o">(</span><span class="n">reservations</span><span class="o">.</span><span class="na">getTickets</span><span class="o">().</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">1</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Single reservation</span>
+</span><span class='line'>    <span class="n">assertNotNull</span><span class="o">(</span><span class="n">template</span><span class="o">.</span><span class="na">getForObject</span><span class="o">(</span><span class="n">BASE_URL</span> <span class="o">+</span> <span class="s">&quot;/reservations/&quot;</span> <span class="o">+</span> <span class="n">ticket</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">Ticket</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>RestTemplate에 대한 보다 자세한 정보는 <a href="http://sleeplessinslc.blogspot.com/2010/02/rest-client-frameworks-your-options.html">Rest Client Framework</a> 를 확인하라.</p>
+
+<h3>참고사항Side Note</h3>
+
+<p>이 예제들에서 나는 내 POJO들에서 <a href="http://pojomatic.sourceforge.net/pojomatic/index.html">equals(), hashCode() 와 toString()</a> 를 구현하는 것을 용이하게 하기 위해서 <a href="http://pojomatic.sourceforge.net/">Pojomatic</a>이라고 불리는 프레임워트를 사용했다. 내가 이전에 작성했던 글에서 사용한 Apache Commons project에서 제공하는 툴보다 간결하여 좋아한다. 결과는 같다(Check the same out, 동작방식은 같다는 의미 같은데&#8230;).</p>
+
+<ul>
+<li>추가 :  제 13회 한국스프링 사용자 모임 세미나에서 백기선님이 발표한 내용을 참조하면 좋을 듯 하다.
+
+<ul>
+<li>Spring MVC를 손쉽게 테스트하기 (백기선) : <a href="http://www.youtube.com/playlist?list=PLHETc3O85eXKPqxRkx17tHjEmIwUWlw1d&amp;feature=view_all">동영상</a> , <a href="http://seminar.ksug.org/resources/pubs/ksug-spring-test-3.2.pdf">발표 자료</a></li>
+</ul>
+</li>
+</ul>
+
+
+<h3>예제실행Running Example</h3>
+
+<p>Spring MVC 예제에 Flight를 표현한 예제를 동봉한다. 이것은 실행될 때 메모리 데이터베이스를 이용하여 중요한 데이터들을 제공한다. The model package in the example is overloaded as far as its responsibilities go(요건 무슨 뜻인지 말 모르겠다). POJO들은 데이터베이스 모델 객체와 데이터 전송 객체(DTO, Data Transfer Object)로 활용된다. 예제의 단위 테스트 혹은 통합테스트는  결코by no means 광범위한 설계나 목적을 증명하기 위한 용도로 사용되었다.</p>
+
+<ol>
+<li><a href="http://home.comcast.net/~acharya.s/java/springMvcExample.zip">Download the example from Here</a></li>
+<li>mvn jetty:run 실행, 애플리케이션 시작</li>
+<li>mvn integration:test 실행, Web Service 확인</li>
+<li>http://localhost:8080 에서 Flight Web application 확인할 수 있다.</li>
+<li>직접 접근 가능한 Web Service url
+
+<ul>
+<li><a href="http://localhost:8080/reservations">http://localhost:8080/reservations</a></li>
+<li><a href="http://localhost:8080/reservations/{id}">http://localhost:8080/reservations/{id}</a></li>
+<li><a href="http://locahost:8080/flights">http://locahost:8080/flights</a></li>
+<li><a href="http://localhost:8080/airports">http://localhost:8080/airports</a></li>
+</ul>
+</li>
+</ol>
+
+
+<h3>결론Conclusion</h3>
+
+<p>나는 Spring Java Config를 이용한 와이어링과 객체 초기화에 대한 편리함을 찾아냈다. 의존성 트리의 동작은 매우 직관적이다. 추가적으로, Strong Typing을 통해, Spring IDE와 같은 툴 없이도 리팩토링을 할 수 있다. 내가 다른 웹 프레임워크보다 Spring MVC를 좋아하는 이유는 간결한 Front Controller/Dispatcher Pattern 때문이다. Ajaxian technology(Ajax 기술)처럼 사용자 경험을  강화할 수 있다. 매우 비간섭적인(non-invasive) 프레임워크다. 더군다나 스프링을 사용할 때는 모든 계층을 관통할 필요가 없다. RESTful 은 Ajax 기반 기술을 바탕으로 상호작용과 시스템 기반의 웹 애플리케이션 개발을 용이하게 한다. 애플리케이션을 상품화할 때 Spring MVC를 사용할 수 없다면 애석할 것이다. If anyone who does have experience with the same stumbles upon this BLOG, I would love to hear of the same.</p>
+
+<p>같은 MVC Application 예제를 활용한, Twitter Bootstrap을 사용하고 Spring Security를 추가한, <a href="http://sleeplessinslc.blogspot.com/2012/02/spring-security-stateless-cookie-based.html">Spring Security Stateless Cookie Authentication BLOG</a>을 봐라.</p>
+
+<p>추가 - 간단하게 설명과 코드를 업로드 했다.  <a href="http://sleeplessinslc.blogspot.com/2012/07/spring-mvc-31-presentation-and-tutorial.html">Spring MVC 3.1 Presentation/Tutorial</a> 를 보면된다.</p>
+
+<h3>참고사항</h3>
+
+<ul>
+<li><a href="http://toby.epril.com/?p=1168">스프링 3.1 (1) JavaConfig의 위험성</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -199,6 +891,10 @@ github에 username.github.com 으로 repository를 생성한다. ex) ihoneymon.g
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/01/11/spring-3-dot-1-mvc-example/"><번역시도>Spring 3.1 MVC example</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/01/11/octopressreul-iyonghan-ceosbeonjjae-poseuting/">octopress를 이용한 첫번째 포스팅</a>
