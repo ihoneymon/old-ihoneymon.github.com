@@ -1,4 +1,4 @@
 User-agent: *
 Disallow: 
 
-Sitemap: http://ihoneymon.github.com/sitemap.xml 
+Sitemap: http://gitblog.ihoney.pe.kr/sitemap.xml 

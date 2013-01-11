@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: etc | 허니몬(Honeymon)의 gitblog]]></title>
-  <link href="http://ihoneymon.github.com/blog/categories/etc/atom.xml" rel="self"/>
-  <link href="http://ihoneymon.github.com/"/>
-  <updated>2013-01-11T01:02:29+09:00</updated>
-  <id>http://ihoneymon.github.com/</id>
+  <link href="http://gitblog.ihoney.pe.kr/blog/categories/etc/atom.xml" rel="self"/>
+  <link href="http://gitblog.ihoney.pe.kr/"/>
+  <updated>2013-01-11T12:04:00+09:00</updated>
+  <id>http://gitblog.ihoney.pe.kr/</id>
   <author>
     <name><![CDATA[honeymon]]></name>
     <email><![CDATA[ihoneymon@gmail.com]]></email>
@@ -15,12 +15,10 @@
   
   <entry>
     <title type="html"><![CDATA[octopress를 이용한 첫번째 포스팅]]></title>
-    <link href="http://ihoneymon.github.com/blog/2013/01/11/octopressreul-iyonghan-ceosbeonjjae-poseuting/"/>
+    <link href="http://gitblog.ihoney.pe.kr/blog/2013/01/11/octopressreul-iyonghan-ceosbeonjjae-poseuting/"/>
     <updated>2013-01-11T00:54:00+09:00</updated>
-    <id>http://ihoneymon.github.com/blog/2013/01/11/octopressreul-iyonghan-ceosbeonjjae-poseuting</id>
-    <content type="html"><![CDATA[<h1>Github에 블로그 개설하기(http://ihoneymon.github.com)</h1>
-
-<h3>사전준비</h3>
+    <id>http://gitblog.ihoney.pe.kr/blog/2013/01/11/octopressreul-iyonghan-ceosbeonjjae-poseuting</id>
+    <content type="html"><![CDATA[<h3>사전준비</h3>
 
 <ul>
 <li>git 설치</li>
@@ -93,7 +91,7 @@
 
 
 <p>  다음단계로 의존성 있는 라이브러리 설치</p></li>
-<li>Deploying(배포)</li>
+<li><p>Deploying(배포)</p></li>
 </ul>
 
 ]]></content>
