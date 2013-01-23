@@ -158,20 +158,19 @@ public class User {
 	1. lombok.jar 직접 다운로드
 		- [http://projectlombok.org/download.html]
 	2. pom.xml dependency 추가
-	프로젝트 pom.xml 
-	``` xml pom.xml
-	<dependencies>
-		...
+``` xml pom.xml
+<dependencies>
+	...
 
-		<!-- Project lombok -->
-		<dependency>
-		    <groupId>org.projectlombok</groupId>
-		    <artifactId>lombok</artifactId>
-		    <version>0.11.6</version>
-		</dependency>
-		...
-	</dependencies>
-	```
+	<!-- Project lombok -->
+	<dependency>
+	    <groupId>org.projectlombok</groupId>
+	    <artifactId>lombok</artifactId>
+	    <version>0.11.6</version>
+	</dependency>
+	...
+</dependencies>
+```
 
 2. lombok.jar 설치하기
 	1. lombok.jar 직접 다운로드의 경우 : 
