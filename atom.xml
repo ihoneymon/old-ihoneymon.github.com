@@ -4,7 +4,7 @@
   <title><![CDATA[허니몬(Honeymon)의 gitblog]]></title>
   <link href="http://gitblog.ihoney.pe.kr/atom.xml" rel="self"/>
   <link href="http://gitblog.ihoney.pe.kr/"/>
-  <updated>2013-01-23T18:38:36+09:00</updated>
+  <updated>2013-01-23T18:40:16+09:00</updated>
   <id>http://gitblog.ihoney.pe.kr/</id>
   <author>
     <name><![CDATA[honeymon]]></name>
@@ -314,26 +314,25 @@
 <li>[http://projectlombok.org/download.html]</li>
 </ul>
 </li>
-<li>pom.xml dependency 추가</li>
-</ol>
+<li><p>pom.xml dependency 추가
+&#8220;`
+<dependencies>
+ &#8230;</p>
 
+<p> <!-- Project lombok -->
+ <dependency></p>
 
-<p> &#8220;` xml pom.xml
- <dependencies></p>
-
-<pre><code> ...
-
- &lt;!-- Project lombok --&gt;
- &lt;dependency&gt;
-     &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
-     &lt;artifactId&gt;lombok&lt;/artifactId&gt;
-     &lt;version&gt;0.11.6&lt;/version&gt;
- &lt;/dependency&gt;
- ...
+<pre><code> &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+ &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+ &lt;version&gt;0.11.6&lt;/version&gt;
 </code></pre>
 
-<p> </dependencies>
- &#8220;`</p></li>
+<p> </dependency>
+ &#8230;
+</dependencies>
+&#8220;`</p></li>
+</ol>
+</li>
 <li><p>lombok.jar 설치하기</p>
 
 <ol>
