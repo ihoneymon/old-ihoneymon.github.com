@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: java | 허니몬(Honeymon)의 gitblog]]></title>
+  <link href="http://gitblog.ihoney.pe.kr/blog/categories/java/atom.xml" rel="self"/>
+  <link href="http://gitblog.ihoney.pe.kr/"/>
+  <updated>2013-01-23T18:34:39+09:00</updated>
+  <id>http://gitblog.ihoney.pe.kr/</id>
+  <author>
+    <name><![CDATA[honeymon]]></name>
+    <email><![CDATA[ihoneymon@gmail.com]]></email>
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Java 코드의 가독성을 높일 수 있는 Lombok Annotation을 추가해보자.]]></title>
+    <link href="http://gitblog.ihoney.pe.kr/blog/2013/01/23/use-lombok-annotation-in-java-project/"/>
+    <updated>2013-01-23T18:29:00+09:00</updated>
+    <id>http://gitblog.ihoney.pe.kr/blog/2013/01/23/use-lombok-annotation-in-java-project</id>
+    <content type="html"><![CDATA[<h1>Lombok을 사용해봅시다.</h1>
+
+<p>자바에서 DTO, VO, Domain Object 만들다보면, 멤버필드에 대한 Getter/Setter 메소드, Equals, hashCode, ToString과 멤버필드에 주입하는 생성자를 만드는 코드 등으로 불필요하게 코드가 길어지는 경우를 볼 수가 있다. 불필요하지만 생성해야 하는 코드들을 줄일 수 있는 방법이 있다면, 얼마나 좋을까?</p>
+
+<h3>Project Lombok 소개</h3>
+
+<ul>
+<li>사이트 : <a href="http://projectlombok.org/">Project lombok</a></li>
+<li>Lombok Feature : <a href="http://projectlombok.org/features/index.html">http://projectlombok.org/features/index.html</a></li>
+<li>Java Source를 컴파일할 때, Lombok의 Annotation을 확인해서 그에 적합한 메소들을 생성해주는 방식이라고 이해를 하면 되겠다.</li>
+</ul>
+
+
+<h3>적용사례</h3>
+
+<p>Lombok annotation을 적용하지 않은 현재 스터디에서 사용하는 User domain 코드
+``` java User.java
+package net.slipp.domain.user;</p>
+
+<p>public class User {</p>
+
+<pre><code>private String userId;
+private String password;
+private String name;
+private String email;
+
+public User(String userId, String password, String name, String email) {
+    this.userId = userId;
+    this.password = password;
+    this.name = name;
+    this.email = email;
+}
+
+public String getUserId() {
+    return userId;
+}
+
+public String getPassword() {
+    return password;
+}
+
+public String getName() {
+    return name;
+}
+
+public String getEmail() {
+    return email;
+}
+
+public boolean matchPassword(String loginPassword) {
+    if (loginPassword == null) {
+        return false;
+    }
+
+    return loginPassword.equals(password);
+}
+
+public void update(User user) {
+    this.userId = user.getUserId();
+    this.password = user.getPassword();
+    this.name = user.getName();
+    this.email = user.getEmail();
+}
+
+@Override
+public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((email == null) ? 0 : email.hashCode());
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    result = prime * result + ((password == null) ? 0 : password.hashCode());
+    result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+    return result;
+}
+
+@Override
+public boolean equals(Object obj) {
+    if (this == obj)
+        return true;
+    if (obj == null)
+        return false;
+    if (getClass() != obj.getClass())
+        return false;
+    User other = (User) obj;
+    if (email == null) {
+        if (other.email != null)
+            return false;
+    } else if (!email.equals(other.email))
+        return false;
+    if (name == null) {
+        if (other.name != null)
+            return false;
+    } else if (!name.equals(other.name))
+        return false;
+    if (password == null) {
+        if (other.password != null)
+            return false;
+    } else if (!password.equals(other.password))
+        return false;
+    if (userId == null) {
+        if (other.userId != null)
+            return false;
+    } else if (!userId.equals(other.userId))
+        return false;
+    return true;
+}
+
+@Override
+public String toString() {
+    return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>Lombok Annotation 적용코드
+``` java User.java
+package net.slipp.domain.user;</li>
+</ul>
+
+
+<p>import lombok.*;</p>
+
+<p>@AllArgsConstructor
+@EqualsAndHashCode
+@ToString
+public class User {</p>
+
+<pre><code>@Getter
+private String userId;
+@Getter
+private String password;
+@Getter
+private String name;
+@Getter
+private String email;
+
+public boolean matchPassword(String loginPassword) {
+    if (loginPassword == null) {
+        return false;
+    }
+
+    return loginPassword.equals(password);
+}
+
+public void update(User user) {
+    this.userId = user.getUserId();
+    this.password = user.getPassword();
+    this.name = user.getName();
+    this.email = user.getEmail();
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<blockquote><p>90라인이 넘는 코드를 30여줄로 1/3 줄일 수가 있다.</p></blockquote>
+
+<h3>설치방법</h3>
+
+<ol>
+<li><p>lombok.jar 다운로드</p>
+
+<ol>
+<li>lombok.jar 직접 다운로드
+
+<ul>
+<li>[http://projectlombok.org/download.html]</li>
+</ul>
+</li>
+<li><p>pom.xml dependency 추가
+프로젝트 pom.xml
+``` xml pom.xml
+<dependencies>
+ ...</p>
+
+<p> <!-- Project lombok -->
+ <dependency></p>
+
+<pre><code> &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+ &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+ &lt;version&gt;0.11.6&lt;/version&gt;
+</code></pre>
+
+<p> </dependency>
+ ...
+</dependencies>
+```</p></li>
+</ol>
+</li>
+<li><p>lombok.jar 설치하기</p>
+
+<ol>
+<li>lombok.jar 직접 다운로드의 경우 :
+
+<ul>
+<li>다운로드 위치 이동</li>
+<li>java -jar lombok.jar</li>
+</ul>
+</li>
+<li>Maven pom.xml 에 추가한 경우 :
+
+<ul>
+<li>cd ~/.m2/repository/org/projectlombok/lombok/<version></li>
+<li>java -jar lombok-<version>.jar</li>
+</ul>
+</li>
+<li>IDE 설치 위치[Specify locaion...]를 검색해서 경로에 추가한다.
+ <img src="../images/lombok/lombok_01.png" alt="lombok 실행 1" />
+ <img src="../images/lombok/lombok_02.png" alt="lombok 실행 2" /></li>
+<li>eclipse.ini or sts.ini 파일 변경되고 동일한 경로에 lombok.jar 추가됨
+ <img src="../images/lombok/lombok_03.png" alt=".ini 에 lombok 설정 추가" /></li>
+<li>별도로 프로젝트 내에 라이브러리를 추가해서 사용할 수도 있겠다.</li>
+</ol>
+</li>
+</ol>
+
+
+<h3>소스코드에서 Lombok Annotation을 추가해보자</h3>
+
+<ul>
+<li><a href="http://projectlombok.org/features/Data.html">@Data</a></li>
+<li><a href="http://projectlombok.org/features/GetterSetter.html">@Getter/@Setter</a>
+
+<ul>
+<li>접근제어 : AccessLevel[PUBLIC, PROTECTED, PACKAGE, PRIVATE]을 통해서 접근레벨을 제한할 수 있다.
+
+<ul>
+<li>예 : @Getter(AccessLevel.PACKAGE), @Setter(AccessLevel.PRIVATE)</li>
+</ul>
+</li>
+<li>getter/setter 관례에 따라서 get필드명, set필드명 메소드가 생성됨</li>
+<li>Getter</li>
+<li>Setter</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/EqualsAndHashCode.html">@EqualsAndHashCode</a>
+
+<ul>
+<li>코드에서 객체의 비교 등의 용도로 사용되는 equals(), hashCode() 메소드의 코드를 절감할 수가 있다.</li>
+<li>@EqualsAndHashCode(exclude={"field1", "field2"}) 처럼 필요에 따라서 특정 필드를 제외할 수가 있다.</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/ToString.html">@ToString</a>
+
+<ul>
+<li>로그Log에서 객체의 내용을 확인하는 등의 용도로 쓰이는 toString() 메소드를 대신할 수 있다.</li>
+<li>@ToString(exclude="field1") 처럼 필요에 따라서 특정 필드를 제외할 수 있다.</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/Log.html">@Log</a>
+
+<ul>
+<li>최근에 알게된 기선님의 글() 녀석인데, Logger와 관련된 코드들을 줄일 수 있다.</li>
+<li>추가하면 자동으로 필드에 private static final Logger log 가 추가된다. 이후 로그를 찍으려는 곳에서는 log.error(), log.warn(), log.debug(), log.info() 형태로 사용하면 된다.</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>정리</h3>
+
+<p>이전에 있던 회사에의 프로젝트에 적용해서 사용했던 녀석인데, 자바 코드를 작성하다보면 어쩔 수 없이 작성해야하는 메소드들을 애노테이션으로 클래스에 정의를 하는 것만으로 대신할 수 있다는 것은 가독성과 생산성을 높일 수 있는 좋은 수단이 된다.
+사실, 이 글은 한참 전에 작성(이걸 처음 사용해보기 시작했을 때)이 되었어야하는게 맞는데, 이제서야 작성한다. 이런이런.</p>
+]]></content>
+  </entry>
+  
+</feed>

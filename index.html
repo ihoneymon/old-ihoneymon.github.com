@@ -9,7 +9,7 @@
   <meta name="author" content="honeymon">
 
   
-  <meta name="description" content="관련 페이지 : Spring 3.1 MVC Example Spring JavaConfig 은 순수자바(pure-java)를 이용한 스프링 컨테이너 설정을 의미한다. 다시 말해서, 가급적으로 XML을 사용하지 않는다. 이전에 XML에서 표현했던 방식을 자바 5 &hellip;">
+  <meta name="description" content="Lombok을 사용해봅시다. 자바에서 DTO, VO, Domain Object 만들다보면, 멤버필드에 대한 Getter/Setter 메소드, Equals, hashCode, ToString과 멤버필드에 주입하는 생성자를 만드는 코드 등으로 불필요하게 코드가 길어지는 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +74,433 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <!-- Now we're back to normal posts. Note the links used under href in both headers.-->
+        <h1 class="entry-title"><a href="/blog/2013/01/23/use-lombok-annotation-in-java-project/">Java 코드의 가독성을 높일 수 있는 Lombok Annotation을 추가해보자.</a></h1>
+      
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-01-23T18:29:00+09:00" pubdate data-updated="true">Jan 23<span>rd</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1>Lombok을 사용해봅시다.</h1>
+
+<p>자바에서 DTO, VO, Domain Object 만들다보면, 멤버필드에 대한 Getter/Setter 메소드, Equals, hashCode, ToString과 멤버필드에 주입하는 생성자를 만드는 코드 등으로 불필요하게 코드가 길어지는 경우를 볼 수가 있다. 불필요하지만 생성해야 하는 코드들을 줄일 수 있는 방법이 있다면, 얼마나 좋을까?</p>
+
+<h3>Project Lombok 소개</h3>
+
+<ul>
+<li>사이트 : <a href="http://projectlombok.org/">Project lombok</a></li>
+<li>Lombok Feature : <a href="http://projectlombok.org/features/index.html">http://projectlombok.org/features/index.html</a></li>
+<li>Java Source를 컴파일할 때, Lombok의 Annotation을 확인해서 그에 적합한 메소들을 생성해주는 방식이라고 이해를 하면 되겠다.</li>
+</ul>
+
+
+<h3>적용사례</h3>
+
+<p>Lombok annotation을 적용하지 않은 현재 스터디에서 사용하는 User domain 코드</p>
+
+<figure class='code'><figcaption><span>User.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+<span class='line-number'>76</span>
+<span class='line-number'>77</span>
+<span class='line-number'>78</span>
+<span class='line-number'>79</span>
+<span class='line-number'>80</span>
+<span class='line-number'>81</span>
+<span class='line-number'>82</span>
+<span class='line-number'>83</span>
+<span class='line-number'>84</span>
+<span class='line-number'>85</span>
+<span class='line-number'>86</span>
+<span class='line-number'>87</span>
+<span class='line-number'>88</span>
+<span class='line-number'>89</span>
+<span class='line-number'>90</span>
+<span class='line-number'>91</span>
+<span class='line-number'>92</span>
+<span class='line-number'>93</span>
+<span class='line-number'>94</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">net</span><span class="o">.</span><span class="na">slipp</span><span class="o">.</span><span class="na">domain</span><span class="o">.</span><span class="na">user</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">User</span><span class="o">(</span><span class="n">String</span> <span class="n">userId</span><span class="o">,</span> <span class="n">String</span> <span class="n">password</span><span class="o">,</span> <span class="n">String</span> <span class="n">name</span><span class="o">,</span> <span class="n">String</span> <span class="n">email</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">userId</span> <span class="o">=</span> <span class="n">userId</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">password</span> <span class="o">=</span> <span class="n">password</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">email</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getUserId</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">userId</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPassword</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">password</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getName</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">getEmail</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">email</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">matchPassword</span><span class="o">(</span><span class="n">String</span> <span class="n">loginPassword</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">loginPassword</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="k">return</span> <span class="n">loginPassword</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">password</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">userId</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserId</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">password</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getPassword</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getEmail</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="kd">final</span> <span class="kt">int</span> <span class="n">prime</span> <span class="o">=</span> <span class="mi">31</span><span class="o">;</span>
+</span><span class='line'>      <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">1</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="o">((</span><span class="n">email</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">email</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="o">((</span><span class="n">name</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">name</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="o">((</span><span class="n">password</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">password</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+</span><span class='line'>      <span class="n">result</span> <span class="o">=</span> <span class="n">prime</span> <span class="o">*</span> <span class="n">result</span> <span class="o">+</span> <span class="o">((</span><span class="n">userId</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="n">userId</span><span class="o">.</span><span class="na">hashCode</span><span class="o">());</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="n">Object</span> <span class="n">obj</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">obj</span><span class="o">)</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">obj</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">getClass</span><span class="o">()</span> <span class="o">!=</span> <span class="n">obj</span><span class="o">.</span><span class="na">getClass</span><span class="o">())</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="n">User</span> <span class="n">other</span> <span class="o">=</span> <span class="o">(</span><span class="n">User</span><span class="o">)</span> <span class="n">obj</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">email</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">email</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>              <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">email</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">email</span><span class="o">))</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">name</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">name</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>              <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">name</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">name</span><span class="o">))</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">password</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">password</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>              <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">password</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">password</span><span class="o">))</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">userId</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">userId</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span>
+</span><span class='line'>              <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(!</span><span class="n">userId</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">other</span><span class="o">.</span><span class="na">userId</span><span class="o">))</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="nd">@Override</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="s">&quot;User [userId=&quot;</span> <span class="o">+</span> <span class="n">userId</span> <span class="o">+</span> <span class="s">&quot;, password=&quot;</span> <span class="o">+</span> <span class="n">password</span> <span class="o">+</span> <span class="s">&quot;, name=&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s">&quot;, email=&quot;</span> <span class="o">+</span> <span class="n">email</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span><span class="o">;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>Lombok Annotation 적용코드</li>
+</ul>
+
+
+<figure class='code'><figcaption><span>User.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kn">package</span> <span class="n">net</span><span class="o">.</span><span class="na">slipp</span><span class="o">.</span><span class="na">domain</span><span class="o">.</span><span class="na">user</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="kn">import</span> <span class="nn">lombok.*</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="nd">@AllArgsConstructor</span>
+</span><span class='line'><span class="nd">@EqualsAndHashCode</span>
+</span><span class='line'><span class="nd">@ToString</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">class</span> <span class="nc">User</span> <span class="o">{</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="nd">@Getter</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">userId</span><span class="o">;</span>
+</span><span class='line'>  <span class="nd">@Getter</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">password</span><span class="o">;</span>
+</span><span class='line'>  <span class="nd">@Getter</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">name</span><span class="o">;</span>
+</span><span class='line'>  <span class="nd">@Getter</span>
+</span><span class='line'>  <span class="kd">private</span> <span class="n">String</span> <span class="n">email</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">matchPassword</span><span class="o">(</span><span class="n">String</span> <span class="n">loginPassword</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="o">(</span><span class="n">loginPassword</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>      
+</span><span class='line'>      <span class="k">return</span> <span class="n">loginPassword</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="n">password</span><span class="o">);</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="kd">public</span> <span class="kt">void</span> <span class="nf">update</span><span class="o">(</span><span class="n">User</span> <span class="n">user</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">userId</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getUserId</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">password</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getPassword</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">name</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+</span><span class='line'>      <span class="k">this</span><span class="o">.</span><span class="na">email</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="na">getEmail</span><span class="o">();</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>90라인이 넘는 코드를 30여줄로 1/3 줄일 수가 있다.</p></blockquote>
+
+<h3>설치방법</h3>
+
+<ol>
+<li><p>lombok.jar 다운로드</p>
+
+<ol>
+<li>lombok.jar 직접 다운로드
+
+<ul>
+<li>[http://projectlombok.org/download.html]</li>
+</ul>
+</li>
+<li><p>pom.xml dependency 추가
+프로젝트 pom.xml
+&#8220;` xml pom.xml
+<dependencies>
+ &#8230;</p>
+
+<p> <!-- Project lombok -->
+ <dependency></p>
+
+<pre><code> &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
+ &lt;artifactId&gt;lombok&lt;/artifactId&gt;
+ &lt;version&gt;0.11.6&lt;/version&gt;
+</code></pre>
+
+<p> </dependency>
+ &#8230;
+</dependencies>
+&#8220;`</p></li>
+</ol>
+</li>
+<li><p>lombok.jar 설치하기</p>
+
+<ol>
+<li>lombok.jar 직접 다운로드의 경우 :
+
+<ul>
+<li>다운로드 위치 이동</li>
+<li>java -jar lombok.jar</li>
+</ul>
+</li>
+<li>Maven pom.xml 에 추가한 경우 :
+
+<ul>
+<li>cd ~/.m2/repository/org/projectlombok/lombok/<version></li>
+<li>java -jar lombok-<version>.jar</li>
+</ul>
+</li>
+<li>IDE 설치 위치[Specify locaion&#8230;]를 검색해서 경로에 추가한다.
+ <img src="../images/lombok/lombok_01.png" alt="lombok 실행 1" />
+ <img src="../images/lombok/lombok_02.png" alt="lombok 실행 2" /></li>
+<li>eclipse.ini or sts.ini 파일 변경되고 동일한 경로에 lombok.jar 추가됨
+ <img src="../images/lombok/lombok_03.png" alt=".ini 에 lombok 설정 추가" /></li>
+<li>별도로 프로젝트 내에 라이브러리를 추가해서 사용할 수도 있겠다.</li>
+</ol>
+</li>
+</ol>
+
+
+<h3>소스코드에서 Lombok Annotation을 추가해보자</h3>
+
+<ul>
+<li><a href="http://projectlombok.org/features/Data.html">@Data</a></li>
+<li><a href="http://projectlombok.org/features/GetterSetter.html">@Getter/@Setter</a>
+
+<ul>
+<li>접근제어 : AccessLevel[PUBLIC, PROTECTED, PACKAGE, PRIVATE]을 통해서 접근레벨을 제한할 수 있다.
+
+<ul>
+<li>예 : @Getter(AccessLevel.PACKAGE), @Setter(AccessLevel.PRIVATE)</li>
+</ul>
+</li>
+<li>getter/setter 관례에 따라서 get필드명, set필드명 메소드가 생성됨</li>
+<li>Getter</li>
+<li>Setter</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/EqualsAndHashCode.html">@EqualsAndHashCode</a>
+
+<ul>
+<li>코드에서 객체의 비교 등의 용도로 사용되는 equals(), hashCode() 메소드의 코드를 절감할 수가 있다.</li>
+<li>@EqualsAndHashCode(exclude={&#8220;field1&#8221;, &#8220;field2&#8221;}) 처럼 필요에 따라서 특정 필드를 제외할 수가 있다.</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/ToString.html">@ToString</a>
+
+<ul>
+<li>로그Log에서 객체의 내용을 확인하는 등의 용도로 쓰이는 toString() 메소드를 대신할 수 있다.</li>
+<li>@ToString(exclude=&#8221;field1&#8221;) 처럼 필요에 따라서 특정 필드를 제외할 수 있다.</li>
+</ul>
+</li>
+<li><a href="http://projectlombok.org/features/Log.html">@Log</a>
+
+<ul>
+<li>최근에 알게된 기선님의 글() 녀석인데, Logger와 관련된 코드들을 줄일 수 있다.</li>
+<li>추가하면 자동으로 필드에 private static final Logger log 가 추가된다. 이후 로그를 찍으려는 곳에서는 log.error(), log.warn(), log.debug(), log.info() 형태로 사용하면 된다.</li>
+</ul>
+</li>
+</ul>
+
+
+<h3>정리</h3>
+
+<p>이전에 있던 회사에의 프로젝트에 적용해서 사용했던 녀석인데, 자바 코드를 작성하다보면 어쩔 수 없이 작성해야하는 메소드들을 애노테이션으로 클래스에 정의를 하는 것만으로 대신할 수 있다는 것은 가독성과 생산성을 높일 수 있는 좋은 수단이 된다.
+사실, 이 글은 한참 전에 작성(이걸 처음 사용해보기 시작했을 때)이 되었어야하는게 맞는데, 이제서야 작성한다. 이런이런.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -893,6 +1320,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/01/23/use-lombok-annotation-in-java-project/">Java 코드의 가독성을 높일 수 있는 Lombok Annotation을 추가해보자.</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/01/11/spring-3-dot-1-mvc-example/"><번역시도>Spring 3.1 MVC example</a>
