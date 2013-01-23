@@ -389,7 +389,7 @@
 <h3>설치방법</h3>
 
 <ol>
-<li><p>lombok.jar 다운로드</p>
+<li>lombok.jar 다운로드
 
 <ol>
 <li>lombok.jar 직접 다운로드
@@ -398,26 +398,39 @@
 <li>[http://projectlombok.org/download.html]</li>
 </ul>
 </li>
-<li><p>pom.xml dependency 추가
-&#8220;`
-<dependencies>
- &#8230;</p>
-
-<p> <!-- Project lombok -->
- <dependency></p>
-
-<pre><code> &lt;groupId&gt;org.projectlombok&lt;/groupId&gt;
- &lt;artifactId&gt;lombok&lt;/artifactId&gt;
- &lt;version&gt;0.11.6&lt;/version&gt;
-</code></pre>
-
-<p> </dependency>
- &#8230;
-</dependencies>
-&#8220;`</p></li>
+<li>pom.xml dependency 추가</li>
 </ol>
 </li>
-<li><p>lombok.jar 설치하기</p>
+</ol>
+
+
+<figure class='code'><figcaption><span>pom.xml</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='xml'><span class='line'><span class="nt">&lt;dependencies&gt;</span>
+</span><span class='line'>  ...
+</span><span class='line'>
+</span><span class='line'>  <span class="c">&lt;!-- Project lombok --&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;dependency&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;groupId&gt;</span>org.projectlombok<span class="nt">&lt;/groupId&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;artifactId&gt;</span>lombok<span class="nt">&lt;/artifactId&gt;</span>
+</span><span class='line'>      <span class="nt">&lt;version&gt;</span>0.11.6<span class="nt">&lt;/version&gt;</span>
+</span><span class='line'>  <span class="nt">&lt;/dependency&gt;</span>
+</span><span class='line'>  ...
+</span><span class='line'><span class="nt">&lt;/dependencies&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>lombok.jar 설치하기
 
 <ol>
 <li>lombok.jar 직접 다운로드의 경우 :
